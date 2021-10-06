@@ -1,5 +1,6 @@
 package com.oyah.ooparkingsystem.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.oyah.ooparkingsystem.entity.Parking;
@@ -23,6 +24,15 @@ public class ParkingService {
     }
 
     public Parking save(Parking parking) {
+        Parking lastParking = parkingRepository.findByPlateNo(parking.getPlateNo());
+        parking.setLastParking(lastParking);
         return parkingRepository.save(parking);
+    }
+    
+    public Parking unpark(Long id) {
+        Parking parking = findById(id);
+        parking.setTimeOut(LocalDateTime.now());
+        parking.setPaid(true);
+        return save(parking);
     }
 }

@@ -32,4 +32,10 @@ public class ParkingController {
     public void createParking(@RequestBody Parking parking) {
         Parking savedParking = parkingService.save(parking);
     }
+
+    @GetMapping("/parking/{id}/unpark") 
+    public String unpark(@PathVariable long id) {
+        Parking parking = parkingService.unpark(id);
+        return "Total parking charge is: " + parking.getTotalCharge();
+    }
 }

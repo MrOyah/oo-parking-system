@@ -2,17 +2,26 @@ package com.oyah.ooparkingsystem.entity;
 
 import java.util.List;
 
+import com.oyah.ooparkingsystem.entity.Lot.Park.Size;
+
 public class Lot {
     
-    public enum Sizes {
-        SP,
-        MP,
-        LP
+    public static class Park {
+        public enum Size {
+            SP,
+            MP,
+            LP;
+        }
     }
 
     private Long id;
-    private Sizes size;
+    private Size size;
     private List<EntranceDistance> entraceDistances;
+
+    public Lot(Long id, Size size) {
+        this.id = id;
+        this.size = size;
+    }
 
     public Long getId() {
         return id;
@@ -22,11 +31,11 @@ public class Lot {
         this.id = id;
     }
 
-    public Sizes getSize() {
+    public Size getSize() {
         return size;
     }
 
-    public void setSize(Sizes size) {
+    public void setSize(Size size) {
         this.size = size;
     }
 
