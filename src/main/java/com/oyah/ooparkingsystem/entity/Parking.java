@@ -2,9 +2,23 @@ package com.oyah.ooparkingsystem.entity;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.oyah.ooparkingsystem.utils.DateUtils;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Data
+@NoArgsConstructor
+@JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Parking {
 
     public static final Long FLAT_HOUR = 3L;
@@ -13,99 +27,42 @@ public class Parking {
     public static final Double MP_SUCCEED_RATE = 60.0;
     public static final Double LP_SUCCEED_RATE = 100.0;
     
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @Column(name = "plate_no")
     private String plateNo;
-    private LocalDateTime timeIn;
+
+    @Column(name = "time_in")
+    private LocalDateTime timeIn = LocalDateTime.now();
+
+    @Column(name = "time_out")
     private LocalDateTime timeOut;
+
+    @OneToOne
+    @JoinColumn(name = "lot_id")
+    @JsonIgnoreProperties({"parking_distances", "occupied"})
     private Lot lot;
-    private Boolean paid;
-    private Parking lastParking;
 
-    public Parking(Long id, String plateNo, LocalDateTime timeIn, Lot lot, Parking lastParking) {
-        this.id = id;
-        this.plateNo = plateNo;
-        this.timeIn = timeIn;
-        this.paid = false;
-        this.lot = lot;
-        this.lastParking = lastParking;
-    }
+    private Boolean paid = false;
 
-    public Long getId() {
-        return id;
-    }
+    @OneToOne
+    @JoinColumn(name = "previous_parking_id")
+    private Parking previousParking;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPlateNo() {
-        return plateNo;
-    }
-
-    public void setPlateNo(String plateNo) {
-        this.plateNo = plateNo;
-    }
-
-    public LocalDateTime getTimeIn() {
-        return timeIn;
-    }
-
-    public void setTimeIn(LocalDateTime timeIn) {
+    public Parking(String plateNo, LocalDateTime timeIn, Lot lot) {
+        this(plateNo, lot);
         this.timeIn = timeIn;
     }
 
-    public LocalDateTime getTimeOut() {
-        return timeOut;
+    public Parking(String plateNo, Lot lot, Parking previousParking) {
+        this(plateNo, lot);
+        this.previousParking = previousParking;
     }
 
-    public void setTimeOut(LocalDateTime timeOut) {
-        this.timeOut = timeOut;
-    }
-    
-    public Lot getLot() {
-        return lot;
-    }
-
-    public void setLot(Lot lot) {
+    public Parking(String plateNo, Lot lot) {
+        this.plateNo = plateNo;
         this.lot = lot;
-    }
-
-    public Boolean getPaid() {
-        return paid;
-    }
-
-    public void setPaid(Boolean paid) {
-        this.paid = paid;
-    }
-
-    public Parking getLastParking() {
-        return lastParking;
-    }
-
-    public void setLastParking(Parking lastParking) {
-        this.lastParking = lastParking;
-    }
-
-    @JsonIgnore
-    public Double getSuceedRate() {
-        switch (lot.getSize()) {
-            case SP:
-                return SP_SUCCEED_RATE;
-            case MP:
-                return MP_SUCCEED_RATE;
-            default:
-                return LP_SUCCEED_RATE;
-        }
-    }
-
-    @JsonIgnore
-    public long getSuceedHours() {
-        Long totalHours = DateUtils.getDateDiffInHours(this.timeIn, this.timeOut);
-        return totalHours > FLAT_HOUR ? (totalHours - FLAT_HOUR) : 0L;
-    }
-
-    @JsonIgnore
-    public Double getTotalCharge() {
-        return FLAT_RATE + (getSuceedHours() * getSuceedRate());
     }
 }

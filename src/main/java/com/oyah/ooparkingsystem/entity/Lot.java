@@ -1,9 +1,23 @@
 package com.oyah.ooparkingsystem.entity;
 
-import java.util.List;
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 
 import com.oyah.ooparkingsystem.entity.Lot.Park.Size;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Lot {
     
     public static class Park {
@@ -14,36 +28,20 @@ public class Lot {
         }
     }
 
+    @Id
+    @GeneratedValue
     private Long id;
+
     private Size size;
-    private List<EntranceDistance> entraceDistances;
+    
+    @OneToMany
+    @JoinColumn(name = "lot_id")
+    private Set<ParkingDistance> parkingDistances;
 
-    public Lot(Long id, Size size) {
-        this.id = id;
+    public boolean occupied;
+
+    public Lot(Size size, boolean occupied) {
         this.size = size;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Size getSize() {
-        return size;
-    }
-
-    public void setSize(Size size) {
-        this.size = size;
-    }
-
-    public List<EntranceDistance> getEntraceDistances() {
-        return entraceDistances;
-    }
-
-    public void setEntraceDistances(List<EntranceDistance> entraceDistances) {
-        this.entraceDistances = entraceDistances;
+        this.occupied = occupied;
     }
 }
