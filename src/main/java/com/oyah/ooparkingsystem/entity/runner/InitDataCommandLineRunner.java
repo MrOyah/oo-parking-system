@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.oyah.ooparkingsystem.constant.ParkingEnum.ParkingSize;
 import com.oyah.ooparkingsystem.entity.Entrance;
 import com.oyah.ooparkingsystem.entity.Lot;
 import com.oyah.ooparkingsystem.entity.Parking;
 import com.oyah.ooparkingsystem.entity.ParkingDistance;
-import com.oyah.ooparkingsystem.entity.Lot.Park;
 import com.oyah.ooparkingsystem.entity.key.ParkingDistanceKey;
 import com.oyah.ooparkingsystem.repository.EntranceRepository;
 import com.oyah.ooparkingsystem.repository.LotRepository;
@@ -47,11 +47,11 @@ public class InitDataCommandLineRunner implements CommandLineRunner{
         entranceRepository.saveAll(entrances);
 
         Set<Lot> lots = new HashSet<>();
-        Lot lot1 = new Lot(Park.Size.SP, true);
-        Lot lot2 = new Lot(Park.Size.MP, true);
-        Lot lot3 = new Lot(Park.Size.LP, true);
-        Lot lot4 = new Lot(Park.Size.MP, false);
-        Lot lot5 = new Lot(Park.Size.LP, false);
+        Lot lot1 = new Lot(ParkingSize.SP, true);
+        Lot lot2 = new Lot(ParkingSize.MP, true);
+        Lot lot3 = new Lot(ParkingSize.LP, true);
+        Lot lot4 = new Lot(ParkingSize.MP, false);
+        Lot lot5 = new Lot(ParkingSize.LP, false);
         lots.add(lot1);
         lots.add(lot2);
         lots.add(lot3);
@@ -81,7 +81,7 @@ public class InitDataCommandLineRunner implements CommandLineRunner{
         parkingDistanceRepository.saveAll(parkingDistances);
         
         Set<Parking> parkingList = new HashSet<>();
-        parkingList.add(new Parking("ABC", LocalDateTime.now().minusHours(5), lot1));
+        parkingList.add(new Parking("ABC", LocalDateTime.now().minusHours(5).minusMinutes(6), lot1));
         parkingList.add(new Parking("DEF", LocalDateTime.now(), lot2));
         parkingList.add(new Parking("GHI", LocalDateTime.now(), lot3));
         parkingRepository.saveAll(parkingList);

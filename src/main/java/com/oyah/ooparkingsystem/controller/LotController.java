@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/parking")
+@RequestMapping("/api/v1")
 public class LotController {
     
     @Autowired
     private LotRepository lotRepository;
 
     @GetMapping("/lots")
-    public List<Lot> retriveParkingList() {
+    public List<Lot> retriveLots() {
         return lotRepository.findAll();
     }
 }

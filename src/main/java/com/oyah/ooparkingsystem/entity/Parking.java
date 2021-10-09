@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.oyah.ooparkingsystem.constant.ParkingEnum.VehicleSize;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ public class Parking {
     public static final Double SP_SUCCEED_RATE = 20.0;
     public static final Double MP_SUCCEED_RATE = 60.0;
     public static final Double LP_SUCCEED_RATE = 100.0;
+    public static final Double FULL_DAY_RATE = 5_000.0;
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,6 +35,9 @@ public class Parking {
 
     @Column(name = "plate_no")
     private String plateNo;
+
+    @Column(name = "vehicle_size")
+    private VehicleSize vehicleSize;
 
     @Column(name = "time_in")
     private LocalDateTime timeIn = LocalDateTime.now();
@@ -51,18 +56,21 @@ public class Parking {
     @JoinColumn(name = "previous_parking_id")
     private Parking previousParking;
 
+    @Column(name = "total_charge")
+    private Double totalCharge;
+
     public Parking(String plateNo, LocalDateTime timeIn, Lot lot) {
-        this(plateNo, lot);
+        this(plateNo);
+        this.lot = lot;
         this.timeIn = timeIn;
     }
 
-    public Parking(String plateNo, Lot lot, Parking previousParking) {
-        this(plateNo, lot);
-        this.previousParking = previousParking;
+    public Parking(String plateNo, VehicleSize vehicleSize) {
+        this(plateNo);
+        this.vehicleSize = vehicleSize;
     }
 
-    public Parking(String plateNo, Lot lot) {
+    public Parking(String plateNo) {
         this.plateNo = plateNo;
-        this.lot = lot;
     }
 }
