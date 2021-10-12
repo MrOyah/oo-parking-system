@@ -38,7 +38,7 @@ public class ParkingService {
     public Parking saveEntry(ParkingEntryData parkingEntryData) {
         Lot lot = lotService.occupyClosestLotFromEntrance(parkingEntryData);
         Parking previousParking = parkingRepository.findPreviousParking(parkingEntryData.getPlateNo());
-
+        
         Parking parking = parkingEntryData.toEntity();
         parking.setLot(lot);
         parking.setPreviousParking(previousParking);

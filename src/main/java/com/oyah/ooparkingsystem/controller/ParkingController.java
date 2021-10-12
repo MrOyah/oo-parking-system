@@ -53,7 +53,7 @@ public class ParkingController {
     }
 
     @PostMapping("/parking/{id}/unpark") 
-    public ResponseEntity<ParkingData> unpark(@PathVariable long id) {
+    public ResponseEntity<ParkingData> unpark(@PathVariable Long id) {
         ParkingData parkingData = parkingService.unpark(id);
         return new ResponseEntity<>(parkingData, HttpStatus.OK);
     }

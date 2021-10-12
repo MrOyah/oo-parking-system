@@ -1,5 +1,7 @@
 package com.oyah.ooparkingsystem.service;
 
+import java.util.List;
+
 import com.oyah.ooparkingsystem.constant.ParkingEnum.ParkingSize;
 import com.oyah.ooparkingsystem.entity.Lot;
 import com.oyah.ooparkingsystem.entity.datamodel.ParkingEntryData;
@@ -15,6 +17,10 @@ public class LotService {
     
     @Autowired
     private LotRepository lotRepository;
+
+    public List<Lot> findAll() {
+        return lotRepository.findAll();
+    }
 
     public Lot findClosestLotFromEntranceId(Long entrance_id, ParkingSize parkingSize) {
         return lotRepository.findClosestLotFromEntrance(entrance_id, parkingSize);

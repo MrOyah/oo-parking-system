@@ -5,13 +5,11 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Embeddable
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class ParkingDistanceKey implements Serializable {
     

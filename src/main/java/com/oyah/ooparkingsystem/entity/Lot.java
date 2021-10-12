@@ -1,17 +1,14 @@
 package com.oyah.ooparkingsystem.entity;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 
 import com.oyah.ooparkingsystem.constant.ParkingEnum.ParkingSize;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Lot {
     
     @Id
@@ -28,10 +26,6 @@ public class Lot {
 
     @Enumerated(EnumType.ORDINAL)
     private ParkingSize size;
-    
-    @OneToMany
-    @JoinColumn(name = "lot_id")
-    private List<ParkingDistance> parkingDistances;
 
     public boolean occupied;
 

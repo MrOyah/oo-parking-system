@@ -10,8 +10,8 @@ import com.oyah.ooparkingsystem.entity.Parking;
 import lombok.Builder;
 import lombok.Data;
 
-@Builder
 @Data
+@Builder
 public class ParkingData {
 
     private Long id;
@@ -24,7 +24,7 @@ public class ParkingData {
 
     private LocalDateTime timeOut;
 
-    @JsonIgnoreProperties({"parking_distances", "occupied"})
+    @JsonIgnoreProperties({"occupied"})
     private Lot lot;
 
     private Boolean paid;

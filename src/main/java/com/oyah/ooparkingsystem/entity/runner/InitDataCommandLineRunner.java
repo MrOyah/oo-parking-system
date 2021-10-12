@@ -9,7 +9,6 @@ import com.oyah.ooparkingsystem.entity.Entrance;
 import com.oyah.ooparkingsystem.entity.Lot;
 import com.oyah.ooparkingsystem.entity.Parking;
 import com.oyah.ooparkingsystem.entity.ParkingDistance;
-import com.oyah.ooparkingsystem.entity.key.ParkingDistanceKey;
 import com.oyah.ooparkingsystem.repository.EntranceRepository;
 import com.oyah.ooparkingsystem.repository.LotRepository;
 import com.oyah.ooparkingsystem.repository.ParkingDistanceRepository;
@@ -61,23 +60,23 @@ public class InitDataCommandLineRunner implements CommandLineRunner{
 
         Set<ParkingDistance> parkingDistances = new HashSet<>();
         //Entrance A
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceA.getId(), lot1.getId()), 1L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceA.getId(), lot2.getId()), 2L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceA.getId(), lot3.getId()), 3L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceA.getId(), lot4.getId()), 4L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceA.getId(), lot5.getId()), 5L));
+        parkingDistances.add(new ParkingDistance(entranceA, lot1, 1L));
+        parkingDistances.add(new ParkingDistance(entranceA, lot2, 2L));
+        parkingDistances.add(new ParkingDistance(entranceA, lot3, 3L));
+        parkingDistances.add(new ParkingDistance(entranceA, lot4, 4L));
+        parkingDistances.add(new ParkingDistance(entranceA, lot5, 5L));
         //Entrance B
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceB.getId(), lot1.getId()), 5L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceB.getId(), lot2.getId()), 4L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceB.getId(), lot3.getId()), 3L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceB.getId(), lot4.getId()), 2L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceB.getId(), lot5.getId()), 1L));
+        parkingDistances.add(new ParkingDistance(entranceB, lot1, 5L));
+        parkingDistances.add(new ParkingDistance(entranceB, lot2, 4L));
+        parkingDistances.add(new ParkingDistance(entranceB, lot3, 3L));
+        parkingDistances.add(new ParkingDistance(entranceB, lot4, 2L));
+        parkingDistances.add(new ParkingDistance(entranceB, lot5, 1L));
         //Entrance C
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceC.getId(), lot1.getId()), 3L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceC.getId(), lot2.getId()), 2L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceC.getId(), lot3.getId()), 1L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceC.getId(), lot4.getId()), 2L));
-        parkingDistances.add(new ParkingDistance(new ParkingDistanceKey(entranceC.getId(), lot5.getId()), 3L));
+        parkingDistances.add(new ParkingDistance(entranceC, lot1, 3L));
+        parkingDistances.add(new ParkingDistance(entranceC, lot2, 2L));
+        parkingDistances.add(new ParkingDistance(entranceC, lot3, 1L));
+        parkingDistances.add(new ParkingDistance(entranceC, lot4, 2L));
+        parkingDistances.add(new ParkingDistance(entranceC, lot5, 3L));
         parkingDistanceRepository.saveAll(parkingDistances);
         
         Set<Parking> parkingList = new HashSet<>();

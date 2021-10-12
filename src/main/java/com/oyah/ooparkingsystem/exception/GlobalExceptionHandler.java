@@ -1,37 +1,45 @@
 package com.oyah.ooparkingsystem.exception;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpHeaders;
+import com.oyah.ooparkingsystem.entity.datamodel.ValidationErrorResponse;
+import com.oyah.ooparkingsystem.entity.datamodel.Violation;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
 
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException ex, HttpHeaders headers,
-        HttpStatus status, WebRequest request) {
-  
-        Map<String, List<String>> body = new HashMap<>();
-  
-        List<String> errors = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .collect(Collectors.toList());
-  
-        body.put("errors", errors);
-  
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    ValidationErrorResponse onConstraintValidationException(
+        ConstraintViolationException e) {
+        ValidationErrorResponse error = new ValidationErrorResponse();
+        for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
+            error.getViolations().add(
+                new Violation(violation.getPropertyPath().toString(), violation.getMessage()));
+            }
+        return error;
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    ValidationErrorResponse onMethodArgumentNotValidException(
+        MethodArgumentNotValidException e) {
+        ValidationErrorResponse error = new ValidationErrorResponse();
+        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
+            error.getViolations().add(
+                new Violation(fieldError.getField(), fieldError.getDefaultMessage()));
+            }
+        return error;
     }
 }

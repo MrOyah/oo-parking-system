@@ -47,7 +47,6 @@ public class Parking {
 
     @OneToOne
     @JoinColumn(name = "lot_id")
-    @JsonIgnoreProperties({"parking_distances", "occupied"})
     private Lot lot;
 
     private Boolean paid = false;
