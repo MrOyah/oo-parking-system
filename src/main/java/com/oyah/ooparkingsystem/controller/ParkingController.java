@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.oyah.ooparkingsystem.entity.Parking;
+import com.oyah.ooparkingsystem.entity.datamodel.DataRequest;
 import com.oyah.ooparkingsystem.entity.datamodel.ParkingData;
 import com.oyah.ooparkingsystem.entity.datamodel.ParkingEntryData;
 import com.oyah.ooparkingsystem.service.ParkingService;
@@ -47,8 +48,8 @@ public class ParkingController {
     }
 
     @PostMapping("/parking")
-    public ResponseEntity<Parking> createParking(@Valid @RequestBody ParkingEntryData parkingEntryData) {
-        Parking parking = parkingService.saveEntry(parkingEntryData);
+    public ResponseEntity<Parking> createParking(@Valid @RequestBody DataRequest<ParkingEntryData> dataRequest) {
+        Parking parking = parkingService.saveEntry(dataRequest.getData());
         return new ResponseEntity<>(parking, HttpStatus.CREATED);
     }
 

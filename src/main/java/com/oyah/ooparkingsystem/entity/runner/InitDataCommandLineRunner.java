@@ -13,6 +13,7 @@ import com.oyah.ooparkingsystem.repository.EntranceRepository;
 import com.oyah.ooparkingsystem.repository.LotRepository;
 import com.oyah.ooparkingsystem.repository.ParkingDistanceRepository;
 import com.oyah.ooparkingsystem.repository.ParkingRepository;
+import com.oyah.ooparkingsystem.service.ParkingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

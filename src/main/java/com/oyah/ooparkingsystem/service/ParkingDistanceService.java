@@ -11,7 +11,9 @@ import com.oyah.ooparkingsystem.entity.datamodel.ParkingDistanceData;
 import com.oyah.ooparkingsystem.repository.ParkingDistanceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ParkingDistanceService {
@@ -26,37 +28,34 @@ public class ParkingDistanceService {
     private EntranceService entranceService;
     
     public List<ParkingDistance> getAllByEntranceId(Long entranceId) {
-        return parkingDistanceRepository.findByEntranceId(entranceId);
+        return parkingDistanceRepository.findByEntranceId(entranceId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrance id not found."));
     }
 
-    public Optional<ParkingDistance> getByEntranceIdAndLotId(Long entranceId, Long lotId) {
-        return parkingDistanceRepository.findByEntranceIdAndLotId(entranceId, lotId);
+    public ParkingDistance getByEntranceIdAndLotId(Long entranceId, Long lotId) {
+        return parkingDistanceRepository.findByEntranceIdAndLotId(entranceId, lotId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrance id not found."));
     }
 
-    public List<ParkingDistance> saveAll(Long entranceId, List<ParkingDistanceData> parkingDistanceRequest) {
-        List<ParkingDistance> newParkingDistances = new ArrayList<>();
+    public List<ParkingDistance> saveAll(
+        Long entranceId, 
+        List<ParkingDistanceData> parkingDistanceRequest) {
 
-        Optional<Entrance> entranceOptional = entranceService.findById(entranceId);
-        if (entranceOptional.isEmpty()) {
-            return newParkingDistances;
-        }
-
-        List<Lot> lots = lotService.findAll();
-        if (lots.isEmpty()) {
-            return newParkingDistances;
-        }
+        Entrance entrance = entranceService.findById(entranceId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrance id not found."));
         
-        for (ParkingDistanceData parkingDistanceData : parkingDistanceRequest) {
-            Optional<Lot> lotOptional = lots.stream().filter(l -> l.getId() == parkingDistanceData.getLotId()).findFirst();
-            if (lotOptional.isEmpty()) {
-                continue;
-            }
+        //TODO: Change if lots will increase;
+        List<Lot> lots = lotService.findAll();
 
+        List<ParkingDistance> newParkingDistances = new ArrayList<>();
+        for (ParkingDistanceData parkingDistanceData : parkingDistanceRequest) {
+            Lot lot = lots.stream()
+                .filter(l -> l.getId() == parkingDistanceData.getLotId())
+                .findFirst()
+                .get();
             newParkingDistances.add(
                 new ParkingDistance(
-                    entranceOptional.get(), 
-                    lotOptional.get(), 
-                    parkingDistanceData.getDistance()
+                    entrance, lot, parkingDistanceData.getDistance()
                 )
             );
         }

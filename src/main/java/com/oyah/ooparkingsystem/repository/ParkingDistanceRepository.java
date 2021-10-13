@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ParkingDistanceRepository extends JpaRepository<ParkingDistance, Long>{
 
-    List<ParkingDistance> findByEntranceId(Long entranceId);
+    Optional<List<ParkingDistance>> findByEntranceId(Long entranceId);
 
     Optional<ParkingDistance> findByEntranceIdAndLotId(Long entranceId, Long lotId);
 }

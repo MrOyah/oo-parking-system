@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface LotRepository extends JpaRepository<Lot, Long> {
 
-    static final String FIND_CLOSES_LOT_FROM_ENTRACE_QUERY = ""
+    static final String FIND_CLOSEST_LOT_FROM_ENTRACE_QUERY = ""
         + "SELECT l.* "
         + "FROM lot l "
         + "JOIN parking_distance pd "
@@ -21,7 +21,7 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
         + "LIMIT 1";
 
     @Query(
-        value = FIND_CLOSES_LOT_FROM_ENTRACE_QUERY, 
+        value = FIND_CLOSEST_LOT_FROM_ENTRACE_QUERY, 
         nativeQuery = true
     )
     Lot findClosestLotFromEntrance(@Param("entrance_id") Long entrance_id, @Param("size") ParkingSize parkingSize);

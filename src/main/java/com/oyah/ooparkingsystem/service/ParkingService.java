@@ -37,7 +37,10 @@ public class ParkingService {
 
     public Parking saveEntry(ParkingEntryData parkingEntryData) {
         Lot lot = lotService.occupyClosestLotFromEntrance(parkingEntryData);
-        Parking previousParking = parkingRepository.findPreviousParking(parkingEntryData.getPlateNo());
+        Parking previousParking = parkingRepository.findPreviousParking(
+            parkingEntryData.getPlateNo(),
+            LocalDateTime.now().minusHours(1)
+        );
         
         Parking parking = parkingEntryData.toEntity();
         parking.setLot(lot);
@@ -46,20 +49,40 @@ public class ParkingService {
     }
     
     public ParkingData unpark(Long id) {
-        Parking parking = parkingRepository.findById(id).orElse(null);
+        Parking parking = parkingRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking not found."));
         return unpark(parking);
     }
 
     public ParkingData unpark(Parking parking) {
-        if (parking == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking not found.");
-        }
         parking.setTimeOut(LocalDateTime.now());
         parking.setPaid(true);
         parking.setTotalCharge(getTotalCharge(parking));
         parkingRepository.save(parking);
         
+        Lot lot = parking.getLot();
+        lot.setOccupied(false);
+        lotService.save(lot);
         return ParkingData.fromEntity(parking);
+    }
+
+    public LocalDateTime getPreviousTimeIn(Parking parking) {
+        while (parking.getPreviousParking() != null) {
+            parking = parking.getPreviousParking();
+        }
+        LocalDateTime previousTimeIn = parking.getTimeIn();
+        return previousTimeIn;
+    }
+
+    public Long getPreivousSucceedHours(Parking parking) {
+        if (parking.getPreviousParking() == null) {
+            return 0L;
+        }
+        LocalDateTime previousTimeIn = getPreviousTimeIn(parking);
+        LocalDateTime previousTimeOut = parking.getPreviousParking().getTimeOut();
+        Long totalHours = DateUtils.getDateDiffInHours(previousTimeIn, previousTimeOut);
+        totalHours %= 24;
+        return totalHours - Parking.FLAT_HOUR;
     }
 
     private Double getSuceedRate(Parking parking) {
@@ -78,14 +101,14 @@ public class ParkingService {
         }
     }
 
-    private Long getSuceedHours(Parking parking) {
-        if (parking.getTimeIn() == null || parking.getTimeOut() == null) {
+    public Long getSuceedHours(Parking parking) {
+        if (parking.getTimeOut() == null) {
             return 0L;
         }
         
-        Long totalHours = DateUtils.getDateDiffInHours(parking.getTimeIn(), parking.getTimeOut());
+        Long totalHours = DateUtils.getDateDiffInHours(getPreviousTimeIn(parking), parking.getTimeOut());
         totalHours %= 24;
-        return totalHours > Parking.FLAT_HOUR ? (totalHours - Parking.FLAT_HOUR) : 0L;
+        return totalHours > Parking.FLAT_HOUR ? (totalHours - Parking.FLAT_HOUR - getPreivousSucceedHours(parking)) : 0L;
     }
 
     private Double getSuceedCharge(Parking parking) {
@@ -93,15 +116,22 @@ public class ParkingService {
     }
 
     private Double getFullDayCharge(Parking parking) {
-        if (parking.getTimeIn() == null || parking.getTimeOut() == null) {
+        if (parking.getTimeOut() == null) {
             return 0.0;
         }
 
-        Long totalDays = DateUtils.getDateDiffInDays(parking.getTimeIn(), parking.getTimeOut());
+        Long totalDays = DateUtils.getDateDiffInDays(getPreviousTimeIn(parking), parking.getTimeOut());
         return totalDays * Parking.FULL_DAY_RATE;
     }
 
-    private Double getTotalCharge(Parking parking) {
-        return Parking.FLAT_RATE + getSuceedCharge(parking) + getFullDayCharge(parking);
+    public Double getTotalCharge(Parking parking) {
+        Double totalCharge = 0.0;
+
+        if (parking.getPreviousParking() == null) {
+            totalCharge = Parking.FLAT_RATE;
+        }
+        
+        totalCharge += getSuceedCharge(parking) + getFullDayCharge(parking);
+        return totalCharge;
     }
 }

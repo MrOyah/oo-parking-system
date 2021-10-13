@@ -14,14 +14,14 @@ import lombok.Data;
 @Data
 public class ParkingEntryData {
     
-    @NotBlank(message = "The plate_no must not be blank.")
+    @NotBlank(message = "plate_no|The plate_no must not be blank.")
     private String plateNo;
 
-    @NotBlank(message = "The vehicle_size must not be blank.")
-    @Pattern(regexp = "(Small)|(Medium)|(Large)", message = "The vehicle_size value must be `Small`, `Medium` or `Large`")
+    @NotBlank(message = "vehicle_size|The vehicle_size must not be blank.")
+    @Pattern(regexp = "(Small)|(Medium)|(Large)", message = "vehicle_size|The vehicle_size value must be `Small`, `Medium` or `Large`")
     private String vehicleSize;
 
-    @NotNull(message = "The entrance_id must not be null.")
+    @NotNull(message = "entrance_id|The entrance_id must not be null.")
     private Long entranceId;
 
     public ParkingSize getParkingSize() {

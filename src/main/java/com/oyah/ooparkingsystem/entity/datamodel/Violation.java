@@ -1,11 +1,13 @@
 package com.oyah.ooparkingsystem.entity.datamodel;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class Violation {
-    
-    private final String fieldName;
-
-    private final String message;
+    private String fieldName;
+    private String message;
 }

@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParkingDistanceDataList<T> {
+public class DataRequest<T> {
     
     @Valid
-    public List<T> data;
+    public T data;
 }
