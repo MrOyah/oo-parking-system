@@ -13,12 +13,14 @@ import javax.persistence.OneToOne;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.oyah.ooparkingsystem.constant.ParkingEnum.VehicleSize;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties({"hibernate_lazy_initializer", "handler"})
 public class Parking {
 
@@ -58,7 +60,7 @@ public class Parking {
     @Column(name = "total_charge")
     private Double totalCharge;
 
-    public Parking(String plateNo, LocalDateTime timeIn, Lot lot) {
+    public Parking(String plateNo, VehicleSize vehicleSize, LocalDateTime timeIn, Lot lot) {
         this(plateNo);
         this.lot = lot;
         this.timeIn = timeIn;

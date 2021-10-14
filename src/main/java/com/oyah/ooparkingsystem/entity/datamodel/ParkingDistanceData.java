@@ -3,6 +3,7 @@ package com.oyah.ooparkingsystem.entity.datamodel;
 import javax.validation.constraints.Positive;
 
 import com.oyah.ooparkingsystem.constraint.LotIdConstraint;
+import com.oyah.ooparkingsystem.entity.ParkingDistance;
 
 import lombok.Builder;
 import lombok.Data;
@@ -16,4 +17,11 @@ public class ParkingDistanceData {
 
     @Positive(message = "distance|The distance must be greater than zero.")
     private Long distance;
+
+    public static ParkingDistanceData fromEntity(ParkingDistance parkingDistance) {
+        return ParkingDistanceData.builder()
+            .lotId(parkingDistance.getLot().getId())
+            .distance(parkingDistance.distance)
+            .build();
+    }
 }

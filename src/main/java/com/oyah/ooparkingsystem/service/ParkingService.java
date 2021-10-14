@@ -2,14 +2,13 @@ package com.oyah.ooparkingsystem.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.oyah.ooparkingsystem.entity.Lot;
 import com.oyah.ooparkingsystem.entity.Parking;
-import com.oyah.ooparkingsystem.entity.datamodel.ParkingData;
-import com.oyah.ooparkingsystem.entity.datamodel.ParkingEntryData;
+import com.oyah.ooparkingsystem.entity.datamodel.ParkingCreateData;
+import com.oyah.ooparkingsystem.entity.datamodel.ParkingUpdateData;
 import com.oyah.ooparkingsystem.repository.ParkingRepository;
-import com.oyah.ooparkingsystem.utils.DateUtils;
+import com.oyah.ooparkingsystem.util.DateUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,45 +24,55 @@ public class ParkingService {
     @Autowired
     private LotService lotService;
 
-    public List<ParkingData> getAll() {
-        return parkingRepository.findAll() .stream()
-            .map(p -> ParkingData.fromEntity(p))
-            .collect(Collectors.toList());
+    public List<Parking> getAll() {
+        return parkingRepository.findAll();
     }
 
-    public ParkingData getById(Long id) {
-        return ParkingData.fromEntity(parkingRepository.findById(id).orElse(null));
+    public Parking findById(Long id) {
+        return parkingRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking not found.")
+        );
     }
 
-    public Parking saveEntry(ParkingEntryData parkingEntryData) {
-        Lot lot = lotService.occupyClosestLotFromEntrance(parkingEntryData);
+    public Parking create(ParkingCreateData parkingCreateData) {
+        Lot lot = lotService.occupyClosestLotFromEntrance(parkingCreateData);
         Parking previousParking = parkingRepository.findPreviousParking(
-            parkingEntryData.getPlateNo(),
+            parkingCreateData.getPlateNo(),
             LocalDateTime.now().minusHours(1)
         );
         
-        Parking parking = parkingEntryData.toEntity();
+        Parking parking = new Parking();
+        parking.setPlateNo(parkingCreateData.getPlateNo());
+        parking.setVehicleSize(parkingCreateData.getVehicleSize());
         parking.setLot(lot);
         parking.setPreviousParking(previousParking);
         return parkingRepository.save(parking);
     }
-    
-    public ParkingData unpark(Long id) {
-        Parking parking = parkingRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parking not found."));
-        return unpark(parking);
+
+    public Parking update(Long id, ParkingUpdateData parkingUpdateData) {
+        Parking parking = findById(id);
+        parking.setPlateNo(parkingUpdateData.getPlateNo());
+        return parkingRepository.save(parking);
     }
 
-    public ParkingData unpark(Parking parking) {
+    public void delete(Long id) {
+        Parking parking = findById(id);
+        parkingRepository.delete(parking);
+    }
+    
+    public Parking unparkAndSave(Long id) {
+        Parking parking = findById(id);
+        parking = unpark(parking);
+        Lot lot = lotService.unoccupy(parking.getLot());
+        parking.setLot(lot);
+        return parkingRepository.save(parking);
+    }
+
+    public Parking unpark(Parking parking) {
         parking.setTimeOut(LocalDateTime.now());
         parking.setPaid(true);
         parking.setTotalCharge(getTotalCharge(parking));
-        parkingRepository.save(parking);
-        
-        Lot lot = parking.getLot();
-        lot.setOccupied(false);
-        lotService.save(lot);
-        return ParkingData.fromEntity(parking);
+        return parking;
     }
 
     public LocalDateTime getPreviousTimeIn(Parking parking) {
@@ -78,20 +87,26 @@ public class ParkingService {
         if (parking.getPreviousParking() == null) {
             return 0L;
         }
+
         LocalDateTime previousTimeIn = getPreviousTimeIn(parking);
         LocalDateTime previousTimeOut = parking.getPreviousParking().getTimeOut();
-        Long totalHours = DateUtils.getDateDiffInHours(previousTimeIn, previousTimeOut);
-        totalHours %= 24;
-        return totalHours - Parking.FLAT_HOUR;
+        
+        return getSucceedHours(previousTimeIn, previousTimeOut);
     }
 
-    private Double getSuceedRate(Parking parking) {
+    public LocalDateTime getTimeInOrPreivousTimeIn(Parking parking) {
+        return parking.getPreviousParking() == null ? 
+            parking.getTimeIn() : 
+            getPreviousTimeIn(parking);
+    }
+
+    public Double getSucceedRate(Parking parking) {
         Lot lot = parking.getLot();
         if (lot == null) {
             return 0.0;
         }
         
-        switch (lot.getSize()) {
+        switch (lot.getParkingSize()) {
             case SP:
                 return Parking.SP_SUCCEED_RATE;
             case MP:
@@ -101,37 +116,48 @@ public class ParkingService {
         }
     }
 
-    public Long getSuceedHours(Parking parking) {
+    public Long getSucceedHours(Parking parking) {
         if (parking.getTimeOut() == null) {
             return 0L;
         }
         
-        Long totalHours = DateUtils.getDateDiffInHours(getPreviousTimeIn(parking), parking.getTimeOut());
-        totalHours %= 24;
-        return totalHours > Parking.FLAT_HOUR ? (totalHours - Parking.FLAT_HOUR - getPreivousSucceedHours(parking)) : 0L;
+        LocalDateTime timeIn = getTimeInOrPreivousTimeIn(parking);
+        return getSucceedHours(timeIn, parking.getTimeOut());
     }
 
-    private Double getSuceedCharge(Parking parking) {
-        return getSuceedHours(parking) * getSuceedRate(parking);
+    private Long getSucceedHours(LocalDateTime timeIn, LocalDateTime timeOut) {
+        Long totalHours = DateUtils.getDateDiffInHoursInCeil(timeIn, timeOut);
+
+        if (totalHours > DateUtils.HOURS_IN_DAY) {
+            totalHours %= DateUtils.HOURS_IN_DAY;
+        } else if (totalHours >= Parking.FLAT_HOUR) {
+            totalHours -= Parking.FLAT_HOUR;
+        }
+        
+        return totalHours;
     }
 
-    private Double getFullDayCharge(Parking parking) {
+    public Double getSucceedingCharge(Parking parking) {
+        return (getSucceedHours(parking) - getPreivousSucceedHours(parking)) * getSucceedRate(parking);
+    }
+
+    public Double getFullDayCharge(Parking parking) {
         if (parking.getTimeOut() == null) {
             return 0.0;
         }
 
-        Long totalDays = DateUtils.getDateDiffInDays(getPreviousTimeIn(parking), parking.getTimeOut());
+        LocalDateTime timeIn = getTimeInOrPreivousTimeIn(parking);
+        Long totalDays = DateUtils.getDateDiffInDays(timeIn, parking.getTimeOut());
         return totalDays * Parking.FULL_DAY_RATE;
     }
 
     public Double getTotalCharge(Parking parking) {
-        Double totalCharge = 0.0;
+        Double fullDayCharge = getFullDayCharge(parking);
+        Double totalCharge = parking.getPreviousParking() == null && fullDayCharge == 0.0 ?
+            Parking.FLAT_RATE :
+            0.0;
 
-        if (parking.getPreviousParking() == null) {
-            totalCharge = Parking.FLAT_RATE;
-        }
-        
-        totalCharge += getSuceedCharge(parking) + getFullDayCharge(parking);
+        totalCharge += getSucceedingCharge(parking) + getFullDayCharge(parking);
         return totalCharge;
     }
 }

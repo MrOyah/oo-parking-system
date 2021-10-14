@@ -1,13 +1,14 @@
 package com.oyah.ooparkingsystem.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.oyah.ooparkingsystem.entity.Entrance;
 import com.oyah.ooparkingsystem.repository.EntranceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class EntranceService {
@@ -19,8 +20,10 @@ public class EntranceService {
         return entranceRepository.findAll();
     }
 
-    public Optional<Entrance> findById(Long entranceId) {
-        return entranceRepository.findById(entranceId);
+    public Entrance findById(Long id) {
+        return entranceRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrance id not found.")
+        );
     }
 
     public Entrance create(Entrance entranceRequest) {
@@ -29,8 +32,13 @@ public class EntranceService {
     }
 
     public Entrance update(Long id, Entrance entranceRequest) {
-        Entrance entrance = entranceRepository.findById(id).orElse(null);
+        Entrance entrance = findById(id);
         entrance.setName(entranceRequest.getName());
         return entranceRepository.save(entrance);
+    }
+
+    public void delete(Long id) {
+        Entrance entrance = findById(id);
+        entranceRepository.delete(entrance);
     }
 }

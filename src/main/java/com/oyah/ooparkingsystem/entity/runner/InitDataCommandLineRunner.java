@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.oyah.ooparkingsystem.constant.ParkingEnum.ParkingSize;
+import com.oyah.ooparkingsystem.constant.ParkingEnum.VehicleSize;
 import com.oyah.ooparkingsystem.entity.Entrance;
 import com.oyah.ooparkingsystem.entity.Lot;
 import com.oyah.ooparkingsystem.entity.Parking;
@@ -13,7 +14,6 @@ import com.oyah.ooparkingsystem.repository.EntranceRepository;
 import com.oyah.ooparkingsystem.repository.LotRepository;
 import com.oyah.ooparkingsystem.repository.ParkingDistanceRepository;
 import com.oyah.ooparkingsystem.repository.ParkingRepository;
-import com.oyah.ooparkingsystem.service.ParkingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -81,9 +81,9 @@ public class InitDataCommandLineRunner implements CommandLineRunner{
         parkingDistanceRepository.saveAll(parkingDistances);
         
         Set<Parking> parkingList = new HashSet<>();
-        parkingList.add(new Parking("ABC", LocalDateTime.now().minusHours(5).minusMinutes(6), lot1));
-        parkingList.add(new Parking("DEF", LocalDateTime.now(), lot2));
-        parkingList.add(new Parking("GHI", LocalDateTime.now(), lot3));
+        parkingList.add(new Parking("ABC", VehicleSize.S, LocalDateTime.now().minusHours(5).minusMinutes(6), lot1));
+        parkingList.add(new Parking("DEF", VehicleSize.M, LocalDateTime.now(), lot2));
+        parkingList.add(new Parking("GHI", VehicleSize.L, LocalDateTime.now(), lot3));
         parkingRepository.saveAll(parkingList);
     }
     

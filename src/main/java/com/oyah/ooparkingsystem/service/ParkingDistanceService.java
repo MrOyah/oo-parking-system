@@ -2,7 +2,6 @@ package com.oyah.ooparkingsystem.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.oyah.ooparkingsystem.entity.Entrance;
 import com.oyah.ooparkingsystem.entity.Lot;
@@ -28,24 +27,26 @@ public class ParkingDistanceService {
     private EntranceService entranceService;
     
     public List<ParkingDistance> getAllByEntranceId(Long entranceId) {
-        return parkingDistanceRepository.findByEntranceId(entranceId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrance id not found."));
+        return parkingDistanceRepository.findByEntranceId(entranceId).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrance id not found.")
+        );
     }
 
     public ParkingDistance getByEntranceIdAndLotId(Long entranceId, Long lotId) {
-        return parkingDistanceRepository.findByEntranceIdAndLotId(entranceId, lotId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrance id not found."));
+        entranceService.findById(entranceId);
+        return parkingDistanceRepository.findByEntranceIdAndLotId(entranceId, lotId).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lot id not found.")
+        );
     }
 
     public List<ParkingDistance> saveAll(
         Long entranceId, 
         List<ParkingDistanceData> parkingDistanceRequest) {
 
-        Entrance entrance = entranceService.findById(entranceId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entrance id not found."));
+        Entrance entrance = entranceService.findById(entranceId);
         
-        //TODO: Change if lots will increase;
-        List<Lot> lots = lotService.findAll();
+        //TODO: Change if lots will be too large;
+        List<Lot> lots = lotService.getAll();
 
         List<ParkingDistance> newParkingDistances = new ArrayList<>();
         for (ParkingDistanceData parkingDistanceData : parkingDistanceRequest) {

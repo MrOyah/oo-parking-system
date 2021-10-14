@@ -2,9 +2,11 @@ package com.oyah.ooparkingsystem.entity.datamodel;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.oyah.ooparkingsystem.constant.ParkingEnum.VehicleSize;
-import com.oyah.ooparkingsystem.entity.Lot;
 import com.oyah.ooparkingsystem.entity.Parking;
 
 import lombok.Builder;
@@ -12,6 +14,7 @@ import lombok.Data;
 
 @Data
 @Builder
+@JsonInclude(value = Include.NON_NULL)
 public class ParkingData {
 
     private Long id;
@@ -20,33 +23,29 @@ public class ParkingData {
 
     private VehicleSize vehicleSize;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timeIn;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timeOut;
 
     @JsonIgnoreProperties({"occupied"})
-    private Lot lot;
+    private LotData lot;
 
     private Boolean paid;
-    
-    private Parking previousParking;
 
     private Double totalCharge;
 
     public static ParkingData fromEntity(Parking parking) {
-        if (parking == null) {
-            return null;
-        }
         return ParkingData.builder()
             .id(parking.getId())
             .plateNo(parking.getPlateNo())
             .vehicleSize(parking.getVehicleSize())
             .timeIn(parking.getTimeIn())
             .timeOut(parking.getTimeOut())
-            .lot(parking.getLot())
+            .lot(LotData.fromEntity(parking.getLot()))
             .paid(parking.getPaid())
-            .previousParking(parking.getPreviousParking())
             .totalCharge(parking.getTotalCharge())
-            .build();
+            .build();  
     }
 }

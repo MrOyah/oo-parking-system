@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.oyah.ooparkingsystem.constant.ParkingEnum.ParkingSize;
 import com.oyah.ooparkingsystem.entity.Lot;
-import com.oyah.ooparkingsystem.entity.datamodel.ParkingEntryData;
+import com.oyah.ooparkingsystem.entity.datamodel.ParkingCreateData;
 import com.oyah.ooparkingsystem.repository.LotRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,30 +18,52 @@ public class LotService {
     @Autowired
     private LotRepository lotRepository;
 
-    public List<Lot> findAll() {
+    public List<Lot> getAll() {
         return lotRepository.findAll();
+    }
+    
+    public Lot findById(Long id) {
+        return lotRepository.findById(id).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lot id not found.")
+        );
     }
 
     public Lot findClosestLotFromEntranceId(Long entrance_id, ParkingSize parkingSize) {
-        return lotRepository.findClosestLotFromEntrance(entrance_id, parkingSize);
-    }
+        Lot lot = lotRepository.findClosestLotFromEntrance(entrance_id, parkingSize).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.OK, "Parking is full.")
+        );
 
-    public Lot save(Lot lot) {
+        lot.setOccupied(true);
         return lotRepository.save(lot);
     }
 
-    public Lot occupyClosestLotFromEntrance(ParkingEntryData parkingEntryData) {
-        return occupyClosestLotFromEntrance(parkingEntryData.getEntranceId(), parkingEntryData.getParkingSize());
+    public Lot occupyClosestLotFromEntrance(ParkingCreateData parkingEntryData) {
+        return findClosestLotFromEntranceId(
+            parkingEntryData.getEntranceId(), 
+            parkingEntryData.getParkingSize()
+        );
     }
 
-    public Lot occupyClosestLotFromEntrance(Long entrance_id, ParkingSize parkingSize) {
-        Lot lot = findClosestLotFromEntranceId(entrance_id, parkingSize);
-        if (lot == null) {
-            throw new ResponseStatusException(HttpStatus.OK, "Parking is full.");
-        }
+    public Lot unoccupy(Lot lot) {
+        lot.setOccupied(false);
+        return lotRepository.save(lot);
+    }
 
-        lot.setOccupied(true);
-        save(lot);
-        return lot;
+    public Lot create(Lot lot) {
+        lot.setId(null);
+        lot.setOccupied(false);
+        return lotRepository.save(lot);
+    }
+
+    public void delete(Long id) {
+        Lot lot = findById(id);
+        lotRepository.delete(lot);
+    }
+
+    public Lot update(Long id, Lot lotRequest) {
+        Lot lot = findById(id);
+        lot.setParkingSize(lotRequest.getParkingSize());
+        lot.setOccupied(lotRequest.isOccupied());
+        return lotRepository.save(lot);
     }
 }

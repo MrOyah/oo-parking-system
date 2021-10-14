@@ -7,12 +7,11 @@ import javax.validation.constraints.Pattern;
 
 import com.oyah.ooparkingsystem.constant.ParkingEnum.ParkingSize;
 import com.oyah.ooparkingsystem.constant.ParkingEnum.VehicleSize;
-import com.oyah.ooparkingsystem.entity.Parking;
 
 import lombok.Data;
 
 @Data
-public class ParkingEntryData {
+public class ParkingCreateData {
     
     @NotBlank(message = "plate_no|The plate_no must not be blank.")
     private String plateNo;
@@ -37,9 +36,5 @@ public class ParkingEntryData {
 
     public VehicleSize getVehicleSize() {
         return VehicleSize.valueOfLabel(this.vehicleSize);
-    }
-
-    public Parking toEntity() {
-        return new Parking(plateNo, getVehicleSize());
     }
 }

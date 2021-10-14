@@ -1,6 +1,5 @@
 package com.oyah.ooparkingsystem.entity.datamodel;
 
-import java.util.List;
 
 import javax.validation.Valid;
 
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataRequest<T> {
+public class RequestData<T> {
     
     @Valid
     public T data;
