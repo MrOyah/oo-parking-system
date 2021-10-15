@@ -30,7 +30,7 @@ public class LotService {
 
     public Lot findClosestLotFromEntranceId(Long entrance_id, ParkingSize parkingSize) {
         Lot lot = lotRepository.findClosestLotFromEntrance(entrance_id, parkingSize).orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.OK, "Parking is full.")
+            () -> new ResponseStatusException(HttpStatus.CONFLICT, "Parking lot is full.")
         );
 
         lot.setOccupied(true);

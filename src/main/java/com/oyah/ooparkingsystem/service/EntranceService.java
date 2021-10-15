@@ -38,6 +38,9 @@ public class EntranceService {
     }
 
     public void delete(Long id) {
+        if (id <= 3) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Entrance id cannot be deleted.");
+        }
         Entrance entrance = findById(id);
         entranceRepository.delete(entrance);
     }

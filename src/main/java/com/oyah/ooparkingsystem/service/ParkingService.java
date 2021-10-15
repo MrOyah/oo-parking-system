@@ -51,12 +51,18 @@ public class ParkingService {
 
     public Parking update(Long id, ParkingUpdateData parkingUpdateData) {
         Parking parking = findById(id);
+        if (parking.getPaid()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Parking cannot be updated.");
+        }
         parking.setPlateNo(parkingUpdateData.getPlateNo());
         return parkingRepository.save(parking);
     }
 
     public void delete(Long id) {
         Parking parking = findById(id);
+        if (parking.getPaid()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Parking cannot be deleted.");
+        }
         parkingRepository.delete(parking);
     }
     
@@ -128,13 +134,13 @@ public class ParkingService {
     private Long getSucceedHours(LocalDateTime timeIn, LocalDateTime timeOut) {
         Long totalHours = DateUtils.getDateDiffInHoursInCeil(timeIn, timeOut);
 
+        Long succeedHours = 0L;
         if (totalHours > DateUtils.HOURS_IN_DAY) {
-            totalHours %= DateUtils.HOURS_IN_DAY;
+            succeedHours = totalHours % DateUtils.HOURS_IN_DAY;
         } else if (totalHours >= Parking.FLAT_HOUR) {
-            totalHours -= Parking.FLAT_HOUR;
+            succeedHours = totalHours - Parking.FLAT_HOUR;
         }
-        
-        return totalHours;
+        return succeedHours;
     }
 
     public Double getSucceedingCharge(Parking parking) {

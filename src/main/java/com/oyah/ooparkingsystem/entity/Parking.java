@@ -61,7 +61,7 @@ public class Parking {
     private Double totalCharge;
 
     public Parking(String plateNo, VehicleSize vehicleSize, LocalDateTime timeIn, Lot lot) {
-        this(plateNo);
+        this(plateNo, vehicleSize);
         this.lot = lot;
         this.timeIn = timeIn;
     }

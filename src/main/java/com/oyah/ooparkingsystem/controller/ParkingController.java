@@ -72,8 +72,8 @@ public class ParkingController {
 
     @PutMapping("/parking/{id}")
     public ResponseEntity<ResponseData<ParkingData>> update(@PathVariable Long id, @Valid @RequestBody RequestData<ParkingUpdateData> dataRequest) {
-        ParkingUpdateData parkingEntryDataRequest = dataRequest.getData();
-        Parking parking = parkingService.update(id, parkingEntryDataRequest);
+        ParkingUpdateData parkingUpdateData = dataRequest.getData();
+        Parking parking = parkingService.update(id, parkingUpdateData);
         ParkingData parkingData = ParkingData.fromEntity(parking);
         ResponseData<ParkingData> responseData = new ResponseData<ParkingData>(parkingData);
         return new ResponseEntity<>(responseData, HttpStatus.CREATED);
